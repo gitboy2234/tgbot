@@ -92,9 +92,11 @@ updater.start_polling()
 
 from web3 import Web3
 
-def get_eth_price_in_usd():
-    url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+def is_contract_verified(address):
+    url = f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={address}&apikey={ETHERSCAN_API_KEY}"
     response = requests.get(url)
+    print(response.json()) # Print the entire response
+
     
     if response.status_code == 200:
         eth_price = response.json().get('ethereum', {}).get('usd')
@@ -119,6 +121,7 @@ def is_contract_verified(address):
                 return True
             
     return False
+
 
 
 def monitor_sniper_wallets(pair_address, block_number):
@@ -189,7 +192,7 @@ def handle_event(event):
     total_supply = new_token_contract.functions.totalSupply().call() / 10**decimals
     market_cap_in_eth = total_supply * price_in_eth
     retries = 0
-    current_eth_price_in_usd = get_eth_price_in_usd()
+    current_eth_price_in_usd = current_eth_price_in_usd()
     market_cap_in_usd = market_cap_in_eth * current_eth_price_in_usd
 
     while True:
