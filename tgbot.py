@@ -92,11 +92,9 @@ updater.start_polling()
 
 from web3 import Web3
 
-def is_contract_verified(address):
-    url = f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={address}&apikey={ETHERSCAN_API_KEY}"
+def get_eth_price_in_usd():
+    url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
     response = requests.get(url)
-    print(response.json()) # Print the entire response
-
     
     if response.status_code == 200:
         eth_price = response.json().get('ethereum', {}).get('usd')
@@ -122,8 +120,7 @@ def is_contract_verified(address):
             
     return False
 
-
-
+    
 def monitor_sniper_wallets(pair_address, block_number):
     # Get the timestamp of the block where liquidity was added
     timestamp_liquidity_added = w3.eth.get_block(block_number)['timestamp']
@@ -182,8 +179,9 @@ def handle_event(event):
     creator_address = token1_address if token1_address != WETH_ADDRESS else token0_address 
     decimals = 18
     if not is_contract_verified(new_token_address):
-        print(f"Contract {new_token_address} is not verified. Skipping.")
-        return
+         print(f"Contract {new_token_address} is not verified. Skipping.")
+         return
+
     if reserves[0] == 0 or reserves[1] == 0:
         print("One of the reserves is zero, cannot calculate price.")
         return
@@ -192,7 +190,7 @@ def handle_event(event):
     total_supply = new_token_contract.functions.totalSupply().call() / 10**decimals
     market_cap_in_eth = total_supply * price_in_eth
     retries = 0
-    current_eth_price_in_usd = current_eth_price_in_usd()
+    current_eth_price_in_usd = get_eth_price_in_usd()
     market_cap_in_usd = market_cap_in_eth * current_eth_price_in_usd
 
     while True:
