@@ -6,7 +6,8 @@ from telegram.ext import Updater
 from threading import Thread
 import requests
 from web3.exceptions import BlockNotFound
-
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 TOKEN = '6601151372:AAE_8SWbEx6F-0dnCX0NI1BzNzp_e_KYlDE'
 # Infura URL
 infura_url = "https://mainnet.infura.io/v3/e869620b99334119bba095c34ccb8558"
@@ -106,7 +107,8 @@ def get_eth_price_in_usd():
 
 def is_contract_verified(address):
     url = f"https://api.etherscan.io/api?module=contract&action=getsourcecode&address={address}&apikey={ETHERSCAN_API_KEY}"
-    response = requests.get(url)
+    response = requests.get(url, verify=False)
+
     
     if response.status_code == 200:
         result = response.json()
@@ -124,7 +126,8 @@ def is_contract_verified(address):
 def monitor_sniper_wallets(pair_address, block_number):
     # Get the timestamp of the block where liquidity was added
     timestamp_liquidity_added = w3.eth.get_block(block_number)['timestamp']
-    end_time = timestamp_liquidity_added + 14 # 14 seconds window
+    start_time_05s = timestamp_liquidity_added + 0.5  # 0.5 second window start
+    end_time_14s = timestamp_liquidity_added + 14     # 14 seconds window end
 
     unique_wallets = set()
     current_block_number = block_number + 1
@@ -135,7 +138,7 @@ def monitor_sniper_wallets(pair_address, block_number):
             current_timestamp = current_block['timestamp']
 
             # Check if the time window has passed
-            if current_timestamp > end_time:
+            if current_timestamp > end_time_14s:
                 break
 
             # Retrieve the transactions that interact with the pair address
@@ -148,15 +151,16 @@ def monitor_sniper_wallets(pair_address, block_number):
             for txn in transactions:
                 # Retrieve the full transaction details
                 transaction_details = w3.eth.get_transaction(txn['transactionHash'])
-                unique_wallets.add(transaction_details['from'])
+
+                if current_timestamp >= start_time_05s:
+                    unique_wallets.add(transaction_details['from'])
 
             current_block_number += 1
         except BlockNotFound:
-
             # Wait a moment if the block is not yet available
             time.sleep(1)
 
-    bot_msg = f"The wallets that bought within 14 seconds after liquidity was added are: {', '.join(unique_wallets)}"
+    bot_msg = f"The wallets that bought within 0.5 to 14 seconds after liquidity was added are: {', '.join(unique_wallets)}"
     print(bot_msg)
     updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=bot_msg)
 
@@ -169,47 +173,44 @@ def handle_event(event):
     pair_address = event['args']['pair']
     WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 
-    # Determine which token is not WETH
     new_token_address = token0_address if token1_address == WETH_ADDRESS else token1_address
     new_token_contract = w3.eth.contract(address=new_token_address, abi=ERC20_ABI)
     new_token_name = new_token_contract.functions.name().call()
     new_token_symbol = new_token_contract.functions.symbol().call()
+    creator_address = token1_address if token1_address != WETH_ADDRESS else token0_address 
+
     pair_contract = w3.eth.contract(address=pair_address, abi=UNISWAP_PAIR_ABI)
     reserves = pair_contract.functions.getReserves().call()
-    creator_address = token1_address if token1_address != WETH_ADDRESS else token0_address 
-    decimals = 18
-    if not is_contract_verified(new_token_address):
-         print(f"Contract {new_token_address} is not verified. Skipping.")
-         return
-
+    
     if reserves[0] == 0 or reserves[1] == 0:
         print("One of the reserves is zero, cannot calculate price.")
         return
 
+    decimals = 18
     price_in_eth = (reserves[0] / 10**decimals) / (reserves[1] / 10**decimals) if token0_address == WETH_ADDRESS else (reserves[1] / 10**decimals) / (reserves[0] / 10**decimals)
     total_supply = new_token_contract.functions.totalSupply().call() / 10**decimals
     market_cap_in_eth = total_supply * price_in_eth
-    retries = 0
     current_eth_price_in_usd = get_eth_price_in_usd()
     market_cap_in_usd = market_cap_in_eth * current_eth_price_in_usd
+    is_verified = is_contract_verified(new_token_address)
+    verified_status = "YES" if is_verified else "NO"
 
+    retries = 0
     while True:
         liquidity = pair_contract.functions.getReserves().call()
         if liquidity[0] > 0 and liquidity[1] > 0:
-            # Format the message using HTML tags
             bot_msg = (
                 f"<b>TOKEN NAME:</b> {new_token_name}\n"
                 f"<b>CA:</b> <i>{new_token_address}</i>\n"
                 f"<b>TOKEN SYMBOL:</b> ${new_token_symbol}\n"
-                f"<b>Creator Address:</b> {creator_address}"
-                f"\n<b>Market Cap:</b> ${market_cap_in_usd:,.2f}"
+                f"<b>Creator Address:</b> {creator_address}\n"
+                f"<b>Market Cap:</b> ${market_cap_in_usd:,.2f}\n"
+                f"<b>Verified Contract:</b> {verified_status}"
             )
             print(bot_msg)
             updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=bot_msg, parse_mode='HTML')
-
             monitor_sniper_wallets(pair_address, event['blockNumber'])
             break
-
         time.sleep(1)
         retries += 1
         if retries >= MAX_RETRIES:
