@@ -10,7 +10,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 TOKEN = '6601151372:AAE_8SWbEx6F-0dnCX0NI1BzNzp_e_KYlDE'
 # Infura URL
-infura_url = "https://mainnet.infura.io/v3/e869620b99334119bba095c34ccb8558"
+infura_url = "https://autumn-lively-frog.discover.quiknode.pro/a42068299ea81533a410c5dc634efadfa8e8a442/"
 w3 = Web3(Web3.HTTPProvider(infura_url))
 ETHERSCAN_API_KEY = 'FUMHTQE96FPWIW79ZJFCIXFX5BPCGNQC7T'
 # Uniswap V2 Factory contract address
@@ -36,6 +36,7 @@ UNISWAP_PAIR_ABI = [
     # Additional functions and data structures can be included here as needed
 ]
 
+UNICRYPT_LOCKER_ABI =  [{"inputs":[{"internalType":"contract IUniFactory","name":"_uniswapFactory","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":True,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":False,"inputs":[{"indexed":False,"internalType":"address","name":"lpToken","type":"address"},{"indexed":False,"internalType":"address","name":"user","type":"address"},{"indexed":False,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":False,"internalType":"uint256","name":"lockDate","type":"uint256"},{"indexed":False,"internalType":"uint256","name":"unlockDate","type":"uint256"}],"name":"onDeposit","type":"event"},{"anonymous":False,"inputs":[{"indexed":False,"internalType":"address","name":"lpToken","type":"address"},{"indexed":False,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"onWithdraw","type":"event"},{"inputs":[],"name":"gFees","outputs":[{"internalType":"uint256","name":"ethFee","type":"uint256"},{"internalType":"contract IERCBurn","name":"secondaryFeeToken","type":"address"},{"internalType":"uint256","name":"secondaryTokenFee","type":"uint256"},{"internalType":"uint256","name":"secondaryTokenDiscount","type":"uint256"},{"internalType":"uint256","name":"liquidityFee","type":"uint256"},{"internalType":"uint256","name":"referralPercent","type":"uint256"},{"internalType":"contract IERCBurn","name":"referralToken","type":"address"},{"internalType":"uint256","name":"referralHold","type":"uint256"},{"internalType":"uint256","name":"referralDiscount","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_index","type":"uint256"}],"name":"getLockedTokenAtIndex","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getNumLockedTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"}],"name":"getNumLocksForToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"}],"name":"getUserLockForTokenAtIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"}],"name":"getUserLockedTokenAtIndex","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserNumLockedTokens","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"address","name":"_lpToken","type":"address"}],"name":"getUserNumLocksForToken","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"}],"name":"getUserWhitelistStatus","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_index","type":"uint256"}],"name":"getWhitelistedUserAtIndex","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getWhitelistedUsersLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"},{"internalType":"uint256","name":"_lockID","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"incrementLock","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"},{"internalType":"uint256","name":"_unlock_date","type":"uint256"},{"internalType":"address payable","name":"_referral","type":"address"},{"internalType":"bool","name":"_fee_in_eth","type":"bool"},{"internalType":"address payable","name":"_withdrawer","type":"address"}],"name":"lockLPToken","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"},{"internalType":"uint256","name":"_lockID","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"migrate","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"},{"internalType":"uint256","name":"_lockID","type":"uint256"},{"internalType":"uint256","name":"_unlock_date","type":"uint256"}],"name":"relock","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"_devaddr","type":"address"}],"name":"setDev","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_referralPercent","type":"uint256"},{"internalType":"uint256","name":"_referralDiscount","type":"uint256"},{"internalType":"uint256","name":"_ethFee","type":"uint256"},{"internalType":"uint256","name":"_secondaryTokenFee","type":"uint256"},{"internalType":"uint256","name":"_secondaryTokenDiscount","type":"uint256"},{"internalType":"uint256","name":"_liquidityFee","type":"uint256"}],"name":"setFees","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract IMigrator","name":"_migrator","type":"address"}],"name":"setMigrator","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract IERCBurn","name":"_referralToken","type":"address"},{"internalType":"uint256","name":"_hold","type":"uint256"}],"name":"setReferralTokenAndHold","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_secondaryFeeToken","type":"address"}],"name":"setSecondaryFeeToken","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"},{"internalType":"uint256","name":"_lockID","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"splitLock","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"tokenLocks","outputs":[{"internalType":"uint256","name":"lockDate","type":"uint256"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"initialAmount","type":"uint256"},{"internalType":"uint256","name":"unlockDate","type":"uint256"},{"internalType":"uint256","name":"lockID","type":"uint256"},{"internalType":"address","name":"owner","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"},{"internalType":"uint256","name":"_lockID","type":"uint256"},{"internalType":"address payable","name":"_newOwner","type":"address"}],"name":"transferLockOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"uniswapFactory","outputs":[{"internalType":"contract IUniFactory","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_user","type":"address"},{"internalType":"bool","name":"_add","type":"bool"}],"name":"whitelistFeeAccount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_lpToken","type":"address"},{"internalType":"uint256","name":"_index","type":"uint256"},{"internalType":"uint256","name":"_lockID","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}]
 
 # ERC20 Token ABI
 ERC20_ABI = [
@@ -122,7 +123,37 @@ def is_contract_verified(address):
             
     return False
 
-    
+def is_token_locked(unicrypt_locker_contract, token_address):
+    try:
+        num_locks = unicrypt_locker_contract.functions.getNumLocksForToken(token_address).call()
+        return num_locks > 0
+    except Exception as e:
+        print(f"Error checking if token is locked: {e}")
+        return False
+UNICRYPT_LOCKER_ADDRESS = "0x04bDa42de3bc32Abb00df46004204424d4Cf8287"
+def check_liquidity_locked(new_token_address):
+    unicrypt_locker_contract = w3.eth.contract(address=UNICRYPT_LOCKER_ADDRESS, abi=UNICRYPT_LOCKER_ABI)
+    if not is_token_locked(unicrypt_locker_contract, new_token_address):
+        print(f"Token {new_token_address} is not locked on Unicrypt.")
+        return (False, {})
+    # Assuming the main Unicrypt locker's contract address
+  
+   
+
+    # Get the number of locked tokens
+    num_locked_tokens = unicrypt_locker_contract.functions.getNumLockedTokens().call()
+
+    for index in range(num_locked_tokens):
+        locked_token_address = unicrypt_locker_contract.functions.getLockedTokenAtIndex(index).call()
+        if locked_token_address.lower() == token_address.lower():
+            # You can further fetch more details about the lock here if needed
+            # For the purpose of this example, I'm returning a simple message. You can replace it with actual data.
+            return True, "Token is locked in Unicrypt."
+
+    return False, None
+
+
+
 def monitor_sniper_wallets(pair_address, block_number):
     # Get the timestamp of the block where liquidity was added
     timestamp_liquidity_added = w3.eth.get_block(block_number)['timestamp']
@@ -168,12 +199,26 @@ def monitor_sniper_wallets(pair_address, block_number):
 
     
 def handle_event(event):
-    token0_address = event['args']['token0']
-    token1_address = event['args']['token1']
-    pair_address = event['args']['pair']
-    WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-
-    new_token_address = token0_address if token1_address == WETH_ADDRESS else token1_address
+    if 'args' in event and all(key in event['args'] for key in ['token0', 'token1', 'pair']):
+        token0_address = event['args']['token0']
+        token1_address = event['args']['token1']
+        pair_address = event['args']['pair']
+        WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+        
+        if token1_address == WETH_ADDRESS:
+            new_token_address = token0_address
+        elif token0_address == WETH_ADDRESS:
+            new_token_address = token1_address
+        else:
+            print("Neither of the tokens is WETH_ADDRESS. Skipping...")
+            return
+    else:
+        print("Event does not have the expected format. Skipping...")
+        return
+    
+    is_locked, locked_details = check_liquidity_locked(new_token_address)
+    locked_status = "YES" if is_locked else "NO"
+    
     new_token_contract = w3.eth.contract(address=new_token_address, abi=ERC20_ABI)
     new_token_name = new_token_contract.functions.name().call()
     new_token_symbol = new_token_contract.functions.symbol().call()
@@ -205,7 +250,8 @@ def handle_event(event):
                 f"<b>TOKEN SYMBOL:</b> ${new_token_symbol}\n"
                 f"<b>Creator Address:</b> {creator_address}\n"
                 f"<b>Market Cap:</b> ${market_cap_in_usd:,.2f}\n"
-                f"<b>Verified Contract:</b> {verified_status}"
+                f"<b>Verified Contract:</b> {verified_status}\n"
+                f"<b>Liquidity Locked:</b> {locked_status} {locked_details if locked_details else ''}"
             )
             print(bot_msg)
             updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=bot_msg, parse_mode='HTML')
