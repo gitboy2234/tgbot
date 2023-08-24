@@ -8,6 +8,9 @@ import requests
 from web3.exceptions import BlockNotFound
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+unlocked_contracts = set()
+
+
 TOKEN = '6601151372:AAE_8SWbEx6F-0dnCX0NI1BzNzp_e_KYlDE'
 # Infura URL
 infura_url = "https://autumn-lively-frog.discover.quiknode.pro/a42068299ea81533a410c5dc634efadfa8e8a442/"
@@ -94,6 +97,8 @@ updater.start_polling()
 
 from web3 import Web3
 
+
+
 def get_eth_price_in_usd():
     url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
     response = requests.get(url)
@@ -128,13 +133,15 @@ def is_token_locked(unicrypt_locker_contract, token_address):
         num_locks = unicrypt_locker_contract.functions.getNumLocksForToken(token_address).call()
         return num_locks > 0
     except Exception as e:
-        print(f"Error checking if token is locked: {e}")
+        print(f"Error checking if token {token_address} is locked: {e}")
         return False
+
 UNICRYPT_LOCKER_ADDRESS = "0x04bDa42de3bc32Abb00df46004204424d4Cf8287"
 def check_liquidity_locked(new_token_address):
     unicrypt_locker_contract = w3.eth.contract(address=UNICRYPT_LOCKER_ADDRESS, abi=UNICRYPT_LOCKER_ABI)
     if not is_token_locked(unicrypt_locker_contract, new_token_address):
         print(f"Token {new_token_address} is not locked on Unicrypt.")
+        unlocked_contracts.add(new_token_address)  # Use add here
         return (False, {})
     # Assuming the main Unicrypt locker's contract address
   
@@ -196,6 +203,17 @@ def monitor_sniper_wallets(pair_address, block_number):
     updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=bot_msg)
 
 
+def check_regularly_for_locked_liquidity():
+    global unlocked_contracts
+    while True:
+        for token_address in list(unlocked_contracts):  # Convert set to list for iteration
+            is_locked, _ = check_liquidity_locked(token_address)
+            if is_locked:
+                bot_msg = f"Token {token_address} has now locked its liquidity on Unicrypt!"
+                print(bot_msg)
+                updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=bot_msg)
+                unlocked_contracts.remove(token_address)
+        time.sleep(60)  # Check every minute
 
     
 def handle_event(event):
@@ -218,7 +236,9 @@ def handle_event(event):
     
     is_locked, locked_details = check_liquidity_locked(new_token_address)
     locked_status = "YES" if is_locked else "NO"
-    
+    if not is_locked:
+        unlocked_contracts.add(new_token_address)
+
     new_token_contract = w3.eth.contract(address=new_token_address, abi=ERC20_ABI)
     new_token_name = new_token_contract.functions.name().call()
     new_token_symbol = new_token_contract.functions.symbol().call()
@@ -255,6 +275,7 @@ def handle_event(event):
             )
             print(bot_msg)
             updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=bot_msg, parse_mode='HTML')
+            updater.bot.send_message(chat_id=YOUR_CHAT_ID, text=f"Number of unlocked contracts: {len(unlocked_contracts)}")
             monitor_sniper_wallets(pair_address, event['blockNumber'])
             break
         time.sleep(1)
@@ -267,9 +288,16 @@ def handle_event(event):
 
 
 
+
 def setup_filter():
     return uniswap_factory_contract.events.PairCreated.create_filter(fromBlock='latest')
 
+
+
+# Start the checking thread
+Thread(target=check_regularly_for_locked_liquidity).start()
+
+# Your existing loop to check for new events
 pair_created_filter = setup_filter()
 
 while True:
